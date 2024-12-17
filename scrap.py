@@ -1,23 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
+import time
 
-def check_for_new_row():
-    url = "https://iq.vntu.edu.ua/b04213/teach_journ/stud_journ.php"
+# Задаємо URL сторінки
+url = "https://iq.vntu.edu.ua/b04213/teach_journ/stud_journ.php"
+
+# Попередньо отриманий вміст таблиці
+previous_rows = []
+
+def check_for_new_rows():
+    global previous_rows
+    
+    # Отримуємо вміст сторінки
     response = requests.get(url)
+    response.raise_for_status()  # Перевірка на помилки запиту
+    
+    # Парсимо HTML
     soup = BeautifulSoup(response.text, 'html.parser')
-
-    # Перевіряємо, чи є таблиця
+    
+    # Знаходимо таблицю та всі рядки в ній
     table = soup.find('table')
     if table:
         rows = table.find_all('tr')
-        return len(rows)
+        
+        # Якщо є нові рядки
+        if len(rows) > len(previous_rows):
+            print("УРААА! З'явився новий рядок.")
+            previous_rows = rows  # Оновлюємо попередні рядки
+        else:
+            print("Немає нових рядків.")
     else:
-        print("Таблиця не знайдена.")
-        return 0
+        print("Таблиця не знайдена на сторінці.")
 
-# Перевіряємо наявність нового рядка
-previous_row_count = check_for_new_row()
-new_row_count = check_for_new_row()
-
-if new_row_count > previous_row_count:
-    print("УРАА! З'явився новий рядок!")
+# Перевіряємо кожні 10 хвилин
+while True:
+    check_for_new_rows()
+    time.sleep(600)  # Чекаємо 10 хвилин (600 секунд)
