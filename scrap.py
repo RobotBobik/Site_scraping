@@ -15,4 +15,4 @@ def check_for_new_rows():
 
 while True:
     check_for_new_rows()
-    time.sleep(600) 
+    time.sleep(1200)
